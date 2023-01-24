@@ -5,7 +5,8 @@ import fastify, { FastifyInstance, FastifyRequest } from 'fastify';
 import { Server, IncomingMessage, ServerResponse } from 'http';
 import { env } from './env';
 
-import { createQueue, setupQueueProcessor } from './queue';
+import { createQueue } from './queue';
+import { createNotificationsWorker } from './workers/notifications_worker';
 
 interface AddJobQueryString {
   id: string;
@@ -13,15 +14,15 @@ interface AddJobQueryString {
 }
 
 const run = async () => {
-  const welcomeEmailQueue = createQueue('WelcomeEmailQueue');
-  await setupQueueProcessor(welcomeEmailQueue.name);
+  const notificationsQueue = createQueue('Notifications Queue');
+  await createNotificationsWorker(notificationsQueue.name);
 
   const server: FastifyInstance<Server, IncomingMessage, ServerResponse> =
     fastify();
 
   const serverAdapter = new FastifyAdapter();
   createBullBoard({
-    queues: [new BullMQAdapter(welcomeEmailQueue)],
+    queues: [new BullMQAdapter(notificationsQueue)],
     serverAdapter,
   });
   serverAdapter.setBasePath('/');
@@ -57,7 +58,7 @@ const run = async () => {
       }
 
       const { email, id } = req.query;
-      welcomeEmailQueue.add(`WelcomeEmail-${id}`, { email });
+      notificationsQueue.add(`WelcomeEmail-${id}`, { email });
 
       reply.send({
         ok: true,
@@ -65,9 +66,12 @@ const run = async () => {
     }
   );
 
-  await server.listen({ port: env.PORT, host: '0.0.0.0' });
+  await server.listen({
+    port: env.PORT,
+    host: env.NODE_ENV === 'development' ? 'localhost' : '0.0.0.0',
+  });
   console.log(
-    `To populate the queue and demo the UI, run: curl https://${env.RAILWAY_STATIC_URL}/add-job?id=1&email=hello%40world.com`
+    `To populate the queue and demo the UI, run: curl ${env.RAILWAY_STATIC_URL}/add-job?id=1&email=hello%40world.com`
   );
 };
 
