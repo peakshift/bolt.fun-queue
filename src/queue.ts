@@ -1,4 +1,10 @@
-import { ConnectionOptions, Processor, Queue, Worker } from 'bullmq';
+import {
+  ConnectionOptions,
+  Processor,
+  Queue,
+  QueueOptions,
+  Worker,
+} from 'bullmq';
 
 import { env } from './env';
 
@@ -9,8 +15,21 @@ const connection: ConnectionOptions = {
   password: env.REDISPASSWORD,
 };
 
-export const createQueue = (name: string) => new Queue(name, { connection });
+export const createQueue = (
+  name: string,
+  options?: Omit<QueueOptions, 'connection'>
+) => new Queue(name, { connection, ...options });
 
-export const createWorker = async (queueName: string, processor: Processor) => {
-  return new Worker(queueName, processor, { connection });
+export const createWorker = async <T = any, R = any, N extends string = string>(
+  queueName: string,
+  processor: Processor<T, R, N>
+) => {
+  const worker = new Worker(queueName, processor, { connection });
+
+  worker.on('failed', (job) => {
+    console.log(`Job ${job?.name} failed`);
+  });
+
+   
+  return worker;
 };

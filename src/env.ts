@@ -15,6 +15,9 @@ export const env = envsafe({
     devDefault: 5000,
   }),
   RAILWAY_STATIC_URL: str({
-    devDefault: 'localhost:5000',
+    devDefault: 'http://localhost:5000',
   }),
+  BOLTFUN_NOSTR_PRIVATE_KEY: str(),
+  BF_SERVERLESS_SERVICE_USERNAME: str(),
+  BF_SERVERLESS_SERVICE_PASS: str(),
 });
