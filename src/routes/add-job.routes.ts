@@ -29,7 +29,6 @@ export default async function storyRoutes(fastify: FastifyInstance) {
         const { story, callback_url } = request.body as Static<
           typeof publishStoryToNostrBodySchema
         >;
-
         fastify.queues.nostr.add('create-story-root-event', {
           type: 'create-story-root-event',
           story,

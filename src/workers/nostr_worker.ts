@@ -19,7 +19,7 @@ export const createNostrWorker = (queueName = 'nostr') =>
   createWorker<NostrQueue['Job'], any, NostrQueue['JobNames']>(
     queueName,
     async (job) => {
-      const logger = console.log;
+      const logger = job.log;
 
       if (job.data.type === 'create-story-root-event') {
         const connectedRelays = await connectToRelays(RELAYS, {
@@ -34,9 +34,9 @@ export const createNostrWorker = (queueName = 'nostr') =>
         );
 
         try {
-          // await publishEvent(storyRootEvent, connectedRelays, {
-          //   logger,
-          // });
+          await publishEvent(storyRootEvent, connectedRelays, {
+            logger,
+          });
 
           logger('Event published on Nostr successfully');
 
@@ -47,7 +47,7 @@ export const createNostrWorker = (queueName = 'nostr') =>
               root_event_id: storyRootEvent.id,
             });
         } catch (error) {
-          logger(error);
+          console.log(error);
           throw error;
         } finally {
           await closeRelays(connectedRelays);
@@ -104,12 +104,9 @@ function createStoryRootEvent(storyURL: string, storyTitle: string) {
     kind: 1,
     pubkey: pubKey,
     created_at: Math.floor(Date.now() / 1000),
-    tags: [
-      ['r', storyURL],
-      ['authorPubkey', 'something'],
-    ],
-    content: `TEST TEST TEST. PLEASE IGNORE. ${storyTitle} 
-  Read story: ${storyURL}`,
+    tags: [['r', storyURL]],
+    content: `${storyTitle} 
+Read story: ${storyURL}`,
   } as Event;
 
   event.id = getEventHash(event);
@@ -133,8 +130,8 @@ async function publishEvent(
     relays.forEach((relay) => {
       try {
         let pub = relay.publish(event);
-        pub.on('seen', () => {
-          logger(`event ${event.id!.slice(0, 5)}… seen to ${relay.url}.`);
+        pub.on('ok', () => {
+          logger(`event ${event.id!.slice(0, 5)}… published to ${relay.url}.`);
           publishedCount++;
         });
         pub.on('failed', (reason: string) => {
@@ -167,7 +164,7 @@ async function makeCallbackRequest(
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Basic ${Buffer.from(
-        `${env.BF_SERVERLESS_SERVICE_USERNAME}1:${env.BF_SERVERLESS_SERVICE_PASS}`
+        `${env.BF_SERVERLESS_SERVICE_USERNAME}:${env.BF_SERVERLESS_SERVICE_PASS}`
       ).toString('base64')}`,
     },
     body: JSON.stringify(data),
