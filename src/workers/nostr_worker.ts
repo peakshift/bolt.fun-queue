@@ -19,7 +19,7 @@ export const createNostrWorker = (queueName = 'nostr') =>
   createWorker<NostrQueue['Job'], any, NostrQueue['JobNames']>(
     queueName,
     async (job) => {
-      const logger = job.log;
+      const logger = job.log.bind(job);
 
       if (job.data.type === 'create-story-root-event') {
         const connectedRelays = await connectToRelays(RELAYS, {
