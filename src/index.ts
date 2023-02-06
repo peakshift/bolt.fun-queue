@@ -16,9 +16,6 @@ interface AddJobQueryString {
 }
 
 const run = async () => {
-  const notificationsQueue = createQueue('Notifications Queue');
-  await createNotificationsWorker(notificationsQueue.name);
-
   const server: FastifyInstance<Server, IncomingMessage, ServerResponse> =
     fastify();
 

@@ -4,7 +4,7 @@ import { relayInit, getPublicKey, getEventHash, signEvent } from 'nostr-tools';
 import { Relay } from 'nostr-tools/relay';
 import { env } from '../env';
 import { Event } from 'nostr-tools/event';
-import fetch from 'node-fetch';
+import axios from 'axios';
 
 const RELAYS = [
   'wss://nostr-pub.wellorder.net',
@@ -159,16 +159,12 @@ async function makeCallbackRequest(
   url: string,
   data: string | Record<any, any>
 ) {
-  const response = await fetch(url, {
-    method: 'POST',
+  return axios.post(url, data, {
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Basic ${Buffer.from(
         `${env.BF_SERVERLESS_SERVICE_USERNAME}:${env.BF_SERVERLESS_SERVICE_PASS}`
       ).toString('base64')}`,
     },
-    body: JSON.stringify(data),
   });
-  if (!response.ok) throw new Error(response.statusText);
-  return response;
 }
