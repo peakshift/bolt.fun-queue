@@ -5,6 +5,7 @@ type NostrQueue = {
         story: {
           id: string;
           title: string;
+          canonical_url: string;
           url: string;
         };
         callback_url?: string;

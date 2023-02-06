@@ -13,6 +13,7 @@ export default async function storyRoutes(fastify: FastifyInstance) {
       story: Type.Object({
         id: Type.String(),
         title: Type.String(),
+        canonical_url: Type.String(),
         url: Type.String(),
       }),
       callback_url: Type.Optional(Type.String()),

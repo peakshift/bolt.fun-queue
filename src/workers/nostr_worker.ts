@@ -8,11 +8,10 @@ import fetch from 'node-fetch';
 
 const RELAYS = [
   'wss://nostr-pub.wellorder.net',
-  'wss://nostr1.tunnelsats.com',
-  'wss://nostr-relay.wlvs.space',
-  // "wss://relay.damus.io",
-  // "wss://relayer.fiatjaf.com",
-  // "wss://nostr-01.bolt.observer",
+  'wss://nostr-relay.untethr.me',
+  'wss://nostr.drss.io',
+  'wss://relay.damus.io',
+  'wss://nostr.swiss-enigma.ch',
 ];
 
 export const createNostrWorker = (queueName = 'nostr') =>
@@ -28,10 +27,7 @@ export const createNostrWorker = (queueName = 'nostr') =>
         if (connectedRelays.length === 0)
           throw new Error("Couldn't connect to any Nostr relay.");
 
-        const storyRootEvent = createStoryRootEvent(
-          job.data.story.url,
-          job.data.story.title
-        );
+        const storyRootEvent = createStoryRootEvent({ ...job.data.story });
 
         try {
           await publishEvent(storyRootEvent, connectedRelays, {
@@ -97,16 +93,20 @@ async function connectToRelays(
   return connectedRelays;
 }
 
-function createStoryRootEvent(storyURL: string, storyTitle: string) {
+function createStoryRootEvent(story: {
+  canonical_url: string;
+  url: string;
+  title: string;
+}) {
   const pubKey = getPublicKey(env.BOLTFUN_NOSTR_PRIVATE_KEY);
 
   let event = {
     kind: 1,
     pubkey: pubKey,
     created_at: Math.floor(Date.now() / 1000),
-    tags: [['r', storyURL]],
-    content: `${storyTitle} 
-Read story: ${storyURL}`,
+    tags: [['r', story.canonical_url]],
+    content: `${story.title} 
+Read story: ${story.url}`,
   } as Event;
 
   event.id = getEventHash(event);
