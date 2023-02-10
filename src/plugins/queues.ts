@@ -9,7 +9,7 @@ const handler: FastifyPluginCallback = async (fastify, options, done) => {
   if (!fastify.queues) {
     let queues = {} as any;
 
-    const NAME_SUFFIX = env.NODE_ENV === 'development' ? 'development' : '';
+    const NAME_SUFFIX = env.NODE_ENV === 'development' ? ' (Development)' : '';
 
     const notificationsQueue = createQueue('Notifications Queue' + NAME_SUFFIX);
     queues['notifications'] = notificationsQueue;

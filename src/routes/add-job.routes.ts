@@ -40,18 +40,37 @@ export default async function storyRoutes(fastify: FastifyInstance) {
       }
     );
   });
-}
 
-type Jobs =
-  | {
-      name: 'publish-story-to-nostr';
-      storyData: any;
+  const newCommentNotificationBodyScheam = Type.Object({
+    comment: Type.Object({
+      event_id: Type.String(),
+      canonical_url: Type.String(),
+      url: Type.String(),
+      content: Type.String(),
+      pubkey: Type.String(),
+      story_id: Type.String(),
+    }),
+    callback_url: Type.Optional(Type.String()),
+  });
+
+  fastify.post(
+    '/new-comment-notification',
+    {
+      schema: {
+        body: newCommentNotificationBodyScheam,
+      },
+    },
+    async (request, reply) => {
+      const { comment, callback_url } = request.body as Static<
+        typeof newCommentNotificationBodyScheam
+      >;
+      fastify.queues.notifications.add(`new-comment`, {
+        type: 'new-comment',
+        comment,
+        callback_url,
+      });
+
+      reply.send({ status: 'OK' });
     }
-  | {
-      name: 'send-notifications-new-story';
-      storyData: {};
-    }
-  | {
-      name: 'send-notifications-new-comment';
-      commentData: {};
-    };
+  );
+}

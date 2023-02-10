@@ -1,6 +1,6 @@
-import * as dotenv from 'dotenv'; // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+import * as dotenv from 'dotenv';
 dotenv.config();
-import { envsafe, port, str } from 'envsafe';
+import { envsafe, port, str, url } from 'envsafe';
 
 export const env = envsafe({
   NODE_ENV: str({
@@ -17,7 +17,12 @@ export const env = envsafe({
   RAILWAY_STATIC_URL: str({
     devDefault: 'http://localhost:5000',
   }),
+
   BOLTFUN_NOSTR_PRIVATE_KEY: str(),
   BF_SERVERLESS_SERVICE_USERNAME: str(),
   BF_SERVERLESS_SERVICE_PASS: str(),
+  BF_RELAY_USERNAME: str(),
+  BF_RELAY_PASS: str(),
+
+  DISCORD_NOTIFICATIONS_WEBHOOK_URL: url(),
 });
