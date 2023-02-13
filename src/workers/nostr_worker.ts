@@ -111,7 +111,7 @@ function createStoryRootEvent(story: {
     ],
     content: `${story.title}
 
-Have a read and join the conversation :point_down:
+Have a read and join the conversation 👇
     
 author: ${story.author_name.slice(0, 20)} #BuildOnBitcoin 
     
