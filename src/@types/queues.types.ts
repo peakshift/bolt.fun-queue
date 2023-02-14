@@ -8,6 +8,7 @@ type NostrQueue = {
           canonical_url: string;
           url: string;
           author_name: string;
+          tags: string[];
         };
         callback_url?: string;
       }

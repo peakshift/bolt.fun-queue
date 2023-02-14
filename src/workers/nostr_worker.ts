@@ -98,6 +98,7 @@ function createStoryRootEvent(story: {
   url: string;
   title: string;
   author_name: string;
+  tags: string[];
 }) {
   const pubKey = getPublicKey(env.BOLTFUN_NOSTR_PRIVATE_KEY);
 
@@ -108,7 +109,7 @@ function createStoryRootEvent(story: {
     tags: [
       ['r', story.canonical_url],
       ['t', 'buildonbitcoin'],
-    ],
+    ].concat(story.tags.map((tag) => ['t', tag.toLowerCase()])),
     content: `${story.title}
 
 Have a read and join the conversation 👇
