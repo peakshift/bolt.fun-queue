@@ -28,20 +28,23 @@ export const createNostrWorker = (queueName = 'nostr') =>
           throw new Error("Couldn't connect to any Nostr relay.");
 
         const storyRootEvent = createStoryRootEvent({ ...job.data.story });
+        console.log(storyRootEvent);
 
         try {
           await publishEvent(storyRootEvent, connectedRelays, {
             logger,
           });
-
+          console.log('Published event to nostr');
           logger('Event published on Nostr successfully');
 
-          if (job.data.callback_url)
+          if (job.data.callback_url) {
             await makeCallbackRequest(job.data.callback_url, {
               type: job.data.type,
               story_id: job.data.story.id,
               root_event_id: storyRootEvent.id,
             });
+            console.log('Sent callback request');
+          }
         } catch (error) {
           console.log(error);
           throw error;
