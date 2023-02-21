@@ -28,13 +28,12 @@ export const createNostrWorker = (queueName = 'nostr') =>
           throw new Error("Couldn't connect to any Nostr relay.");
 
         const storyRootEvent = createStoryRootEvent({ ...job.data.story });
-        console.log(storyRootEvent);
 
         try {
           await publishEvent(storyRootEvent, connectedRelays, {
             logger,
           });
-          console.log('Published event to nostr');
+
           logger('Event published on Nostr successfully');
 
           if (job.data.callback_url) {
@@ -43,7 +42,6 @@ export const createNostrWorker = (queueName = 'nostr') =>
               story_id: job.data.story.id,
               root_event_id: storyRootEvent.id,
             });
-            console.log('Sent callback request');
           }
         } catch (error) {
           console.log(error);
@@ -111,6 +109,8 @@ function createStoryRootEvent(story: {
     created_at: Math.floor(Date.now() / 1000),
     tags: [
       ['r', story.canonical_url],
+      ['client', 'makers.bolt.fun'],
+      ['event_type', 'story-root-event'],
       ['t', 'buildonbitcoin'],
     ].concat(story.tags.map((tag) => ['t', tag.toLowerCase()])),
     content: `${story.title}
