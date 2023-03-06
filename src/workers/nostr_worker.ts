@@ -1,10 +1,10 @@
 import { createWorker } from '../queue';
 import 'websocket-polyfill';
-import { relayInit, getPublicKey, getEventHash, signEvent } from 'nostr-tools';
-import { Relay } from 'nostr-tools/relay';
+import { getPublicKey, getEventHash, signEvent } from 'nostr-tools';
 import { env } from '../env';
 import { Event } from 'nostr-tools/event';
 import axios from 'axios';
+import { RelayPool } from 'nostr-relaypool';
 
 const RELAYS = [
   'wss://nostr-pub.wellorder.net',
@@ -21,16 +21,12 @@ export const createNostrWorker = (queueName = 'nostr') =>
       const logger = job.log.bind(job);
 
       if (job.data.type === 'create-story-root-event') {
-        const connectedRelays = await connectToRelays(RELAYS, {
-          logger,
-        });
-        if (connectedRelays.length === 0)
-          throw new Error("Couldn't connect to any Nostr relay.");
+        let relayPool = new RelayPool(RELAYS);
 
         const storyRootEvent = createStoryRootEvent({ ...job.data.story });
 
         try {
-          await publishEvent(storyRootEvent, connectedRelays, {
+          await publishEvent(storyRootEvent, relayPool, {
             logger,
           });
 
@@ -47,7 +43,7 @@ export const createNostrWorker = (queueName = 'nostr') =>
           console.log(error);
           throw error;
         } finally {
-          await closeRelays(connectedRelays);
+          relayPool.close();
         }
       }
 
@@ -56,43 +52,6 @@ export const createNostrWorker = (queueName = 'nostr') =>
       }
     }
   );
-
-async function connectToRelays(
-  relaysURLs: string[],
-  options?: Partial<{ logger: typeof console.log }>
-) {
-  const { logger = console.log } = options ?? {};
-
-  const relays = relaysURLs.map((url) => relayInit(url));
-
-  const connectedRelays = await Promise.allSettled(
-    relays.map(
-      (relay) =>
-        new Promise<Relay>(async (resolve, reject) => {
-          try {
-            await relay.connect();
-            relay.on('connect', () => {
-              logger(`connected ${relay.url}`);
-              resolve(relay);
-            });
-            relay.on('error', () => {
-              logger(`failed to connect to ${relay.url}`);
-              reject();
-            });
-          } catch (error) {
-            logger(`failed to connect to ${relay.url}`);
-            reject();
-          }
-        })
-    )
-  ).then((relays) =>
-    relays
-      .filter((relay) => relay.status === 'fulfilled')
-      .map((relay) => (relay.status === 'fulfilled' && relay.value) as Relay)
-  );
-
-  return connectedRelays;
-}
 
 function createStoryRootEvent(story: {
   canonical_url: string;
@@ -130,42 +89,38 @@ Read story: ${story.url}`,
 
 async function publishEvent(
   event: Event,
-  relays: Relay[],
+  relayPool: RelayPool,
   options?: Partial<{ logger: typeof console.log }>
 ) {
   const { logger = console.log } = options ?? {};
 
+  const relaysUrls = Array.from(relayPool.relayByUrl.keys());
+
   return new Promise(async (resolve, reject) => {
     logger('publishing...');
 
-    let publishedCount = 0;
+    const publishTimeout = setTimeout(() => {
+      return reject(
+        `failed to publish event ${event.id!.slice(0, 5)}… to any relay.`
+      );
+    }, 8000);
 
-    relays.forEach((relay) => {
-      try {
-        let pub = relay.publish(event);
-        pub.on('ok', () => {
-          logger(`event ${event.id!.slice(0, 5)}… published to ${relay.url}.`);
-          publishedCount++;
-        });
-        pub.on('failed', (reason: string) => {
-          logger(`failed to publish to ${relay.url}: ${reason}`);
-        });
-      } catch (error) {
-        logger(error);
+    relayPool.publish(event, relaysUrls);
+
+    const unsub = relayPool.subscribe(
+      [
+        {
+          ids: [event.id!],
+        },
+      ],
+      relaysUrls,
+      (event, afterEose, url) => {
+        clearTimeout(publishTimeout);
+        logger(`event ${event.id!.slice(0, 5)}… published to ${url}.`);
+        return resolve(`event ${event.id.slice(0, 5)}… published to ${url}.`);
       }
-    });
-    setTimeout(() => {
-      if (publishedCount !== 0) {
-        resolve(`Published event to ${publishedCount} relays.`);
-      } else {
-        reject('Failed to publish event to any relay');
-      }
-    }, 3000);
+    );
   });
-}
-
-function closeRelays(relays: Relay[]) {
-  return Promise.all(relays.map((relay) => relay.close()));
 }
 
 async function makeCallbackRequest(

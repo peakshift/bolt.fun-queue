@@ -1232,6 +1232,15 @@
     "graceful-fs" "^4.2.9"
     "source-map" "^0.6.0"
 
+"@jest/source-map@^29.4.3":
+  "integrity" "sha512-qyt/mb6rLyd9j1jUts4EQncvS6Yy3PM9HghnNv86QBlV+zdL2inCdK1tuVlL+J+lpiw2BI67qXOrX3UurBqQ1w=="
+  "resolved" "https://registry.npmjs.org/@jest/source-map/-/source-map-29.4.3.tgz"
+  "version" "29.4.3"
+  dependencies:
+    "@jridgewell/trace-mapping" "^0.3.15"
+    "callsites" "^3.0.0"
+    "graceful-fs" "^4.2.9"
+
 "@jest/test-result@^27.5.1":
   "integrity" "sha512-EW35l2RYFUcUQxFJz5Cv5MTOxlJIQs4I7gxzi2zVU7PJhOwfYq1MdC5nhSmYjX1gmMmLPvB3sIaC+BkcHRBfag=="
   "resolved" "https://registry.npmjs.org/@jest/test-result/-/test-result-27.5.1.tgz"
@@ -1333,7 +1342,7 @@
   "resolved" "https://registry.npmjs.org/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.4.14.tgz"
   "version" "1.4.14"
 
-"@jridgewell/trace-mapping@^0.3.9":
+"@jridgewell/trace-mapping@^0.3.15", "@jridgewell/trace-mapping@^0.3.9":
   "integrity" "sha512-oWZNOULl+UbhsgB51uuZzglikfIKSUBO/M9W2OfEjn7cmqoAiCgmv9lyACTUacZwBz0ITnJ2NqjU8Tx0DHL88g=="
   "resolved" "https://registry.npmjs.org/@jridgewell/trace-mapping/-/trace-mapping-0.3.15.tgz"
   "version" "0.3.15"
@@ -4146,6 +4155,11 @@
   "resolved" "https://registry.npmjs.org/isexe/-/isexe-2.0.0.tgz"
   "version" "2.0.0"
 
+"isomorphic-ws@^5.0.0":
+  "integrity" "sha512-muId7Zzn9ywDsyXgTIafTry2sV3nySZeUDe6YedVd1Hvuuep5AsIlqK+XefWpYTyJG5e503F2xIuT2lcU6rCSw=="
+  "resolved" "https://registry.npmjs.org/isomorphic-ws/-/isomorphic-ws-5.0.0.tgz"
+  "version" "5.0.0"
+
 "istanbul-lib-coverage@^3.0.0", "istanbul-lib-coverage@^3.2.0":
   "integrity" "sha512-eOeJ5BHCmHYvQK7xt9GkdHuzuCGS1Y6g9Gvnx3Ym33fz/HpLRYxiS0wHNr+m/MBC8B647Xt608vCDEvhl9c6Mw=="
   "resolved" "https://registry.npmjs.org/istanbul-lib-coverage/-/istanbul-lib-coverage-3.2.0.tgz"
@@ -5102,7 +5116,17 @@
   "resolved" "https://registry.npmjs.org/normalize-path/-/normalize-path-3.0.0.tgz"
   "version" "3.0.0"
 
-"nostr-tools@^1.2.0":
+"nostr-relaypool@^0.5.5":
+  "integrity" "sha512-oMbZoJFLxRu/zV9ltwnAT5aEHrcFiP3cbYpvlkCo3Nk5sfQ64LSEgXPHA4abXsWKwN2raKId0B0Qsp2LyisXeA=="
+  "resolved" "https://registry.npmjs.org/nostr-relaypool/-/nostr-relaypool-0.5.5.tgz"
+  "version" "0.5.5"
+  dependencies:
+    "@jest/source-map" "^29.4.3"
+    "isomorphic-ws" "^5.0.0"
+    "nostr-tools" "^1.1.0"
+    "safe-stable-stringify" "^2.4.2"
+
+"nostr-tools@^1.1.0", "nostr-tools@^1.2.0":
   "integrity" "sha512-5bISmkAsFP2ZgSWlWo7Ra0PHpkDRDKylOxQQAfWs3I8OpuQBUmOKuQAAO2jYSFa3FGRvcCFmF+tO7+m533dtLw=="
   "resolved" "https://registry.npmjs.org/nostr-tools/-/nostr-tools-1.2.0.tgz"
   "version" "1.2.0"
@@ -5846,10 +5870,10 @@
   dependencies:
     "ret" "~0.2.0"
 
-"safe-stable-stringify@^2.3.1":
-  "integrity" "sha512-kYBSfT+troD9cDA85VDnHZ1rpHC50O0g1e6WlGHVCz/g+JS+9WKLj+XwFYyR8UbrZN8ll9HUpDAAddY58MGisg=="
-  "resolved" "https://registry.npmjs.org/safe-stable-stringify/-/safe-stable-stringify-2.3.1.tgz"
-  "version" "2.3.1"
+"safe-stable-stringify@^2.3.1", "safe-stable-stringify@^2.4.2":
+  "integrity" "sha512-gMxvPJYhP0O9n2pvcfYfIuYgbledAOJFcqRThtPRmjscaipiwcwPPKLytpVzMkG2HAN87Qmo2d4PtGiri1dSLA=="
+  "resolved" "https://registry.npmjs.org/safe-stable-stringify/-/safe-stable-stringify-2.4.2.tgz"
+  "version" "2.4.2"
 
 "safer-buffer@>= 2.1.2 < 3":
   "integrity" "sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg=="
@@ -6529,7 +6553,7 @@
     "querystringify" "^2.1.1"
     "requires-port" "^1.0.0"
 
-"utf-8-validate@^5.0.2":
+"utf-8-validate@^5.0.2", "utf-8-validate@>=5.0.2":
   "integrity" "sha512-Z6czzLq4u8fPOyx7TU6X3dvUZVvoJmxSQ+IcrlmagKhilxlhZgxPK6C5Jqbkw1IDUmFTM+cz9QDnnLTwDz/2gQ=="
   "resolved" "https://registry.npmjs.org/utf-8-validate/-/utf-8-validate-5.0.10.tgz"
   "version" "5.0.10"
@@ -6706,6 +6730,11 @@
     "is-typedarray" "^1.0.0"
     "signal-exit" "^3.0.2"
     "typedarray-to-buffer" "^3.1.5"
+
+"ws@*", "ws@^8.12.1":
+  "integrity" "sha512-1qo+M9Ba+xNhPB+YTWUlK6M17brTut5EXbcBaMRN5pH5dFrXz7lzz1ChFSUq3bOUl8yEvSenhHmYUNJxFzdJew=="
+  "resolved" "https://registry.npmjs.org/ws/-/ws-8.12.1.tgz"
+  "version" "8.12.1"
 
 "ws@^7.4.6":
   "integrity" "sha512-F+P9Jil7UiSKSkppIiD94dN07AwvFixvLIj1Og1Rl9GGMuNipJnV9JzjD6XuqmAeiswGvUmNLjr5cFuXwNS77Q=="
