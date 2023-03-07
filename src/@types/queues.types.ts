@@ -13,6 +13,18 @@ type NostrQueue = {
         callback_url?: string;
       }
     | {
+        type: 'publish-profile-verification-event';
+        event: {
+          id: string;
+          kind: number;
+          content: string;
+          sig: string;
+          created_at: number;
+          tags: string[][];
+          pubkey: string;
+        };
+      }
+    | {
         type: 'create-comment-event';
         comment: any;
       };

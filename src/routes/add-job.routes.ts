@@ -43,6 +43,38 @@ export default async function storyRoutes(fastify: FastifyInstance) {
     );
   });
 
+  const publishProfileVerificationInput = Type.Object({
+    event: Type.Object({
+      id: Type.String(),
+      kind: Type.Number(),
+      pubkey: Type.String(),
+      content: Type.String(),
+      sig: Type.String(),
+      created_at: Type.Number(),
+      tags: Type.Array(Type.Array(Type.String())),
+    }),
+  });
+
+  fastify.post(
+    '/publish-profile-verification-to-nostr',
+    {
+      schema: {
+        body: publishProfileVerificationInput,
+      },
+    },
+    async (request, reply) => {
+      const { event } = request.body as Static<
+        typeof publishProfileVerificationInput
+      >;
+      fastify.queues.nostr.add('publish-profile-verification-event', {
+        type: 'publish-profile-verification-event',
+        event,
+      });
+
+      reply.send({ status: 'OK' });
+    }
+  );
+
   const newCommentNotificationBodyScheam = Type.Object({
     comment: Type.Object({
       event_id: Type.String(),

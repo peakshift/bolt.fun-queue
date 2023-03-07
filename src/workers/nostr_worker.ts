@@ -47,6 +47,23 @@ export const createNostrWorker = (queueName = 'nostr') =>
         }
       }
 
+      if (job.data.type === 'publish-profile-verification-event') {
+        let relayPool = new RelayPool(RELAYS);
+
+        try {
+          await publishEvent(job.data.event, relayPool, {
+            logger,
+          });
+
+          logger('Event published on Nostr successfully');
+        } catch (error) {
+          console.log(error);
+          throw error;
+        } finally {
+          relayPool.close();
+        }
+      }
+
       if (job.data.type === 'create-comment-event') {
         logger('Creating comment event');
       }
