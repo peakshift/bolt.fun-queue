@@ -16,6 +16,7 @@ export default async function storyRoutes(fastify: FastifyInstance) {
         canonical_url: Type.String(),
         url: Type.String(),
         author_name: Type.String(),
+        author_nostr_pubkey: Type.Optional(Type.String()),
         tags: Type.Array(Type.String()),
       }),
       callback_url: Type.Optional(Type.String()),

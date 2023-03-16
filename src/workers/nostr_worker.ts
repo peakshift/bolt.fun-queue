@@ -75,27 +75,42 @@ function createStoryRootEvent(story: {
   url: string;
   title: string;
   author_name: string;
+  author_nostr_pubkey?: string;
   tags: string[];
 }) {
-  const pubKey = getPublicKey(env.BOLTFUN_NOSTR_PRIVATE_KEY);
+  const pubkey = getPublicKey(env.BOLTFUN_NOSTR_PRIVATE_KEY);
+
+  const tags = [
+    ['r', story.canonical_url],
+    ['client', 'makers.bolt.fun'],
+    ['event_type', 'story-root-event'],
+    ['t', 'buildonbitcoin'],
+  ].concat(story.tags.map((tag) => ['t', tag.toLowerCase()]));
+
+  const pubkeyTagIndex = tags.length;
+
+  if (story.author_nostr_pubkey) {
+    tags.push(['p', story.author_nostr_pubkey]);
+  }
+
+  const content = `${story.title}
+
+  Have a read and join the conversation 👇
+      
+  <author: ${
+    story.author_nostr_pubkey
+      ? `#[${pubkeyTagIndex}]`
+      : story.author_name.slice(0, 20)
+  }> #BuildOnBitcoin 
+      
+  Read story: ${story.url}`;
 
   let event = {
     kind: 1,
-    pubkey: pubKey,
+    pubkey,
     created_at: Math.floor(Date.now() / 1000),
-    tags: [
-      ['r', story.canonical_url],
-      ['client', 'makers.bolt.fun'],
-      ['event_type', 'story-root-event'],
-      ['t', 'buildonbitcoin'],
-    ].concat(story.tags.map((tag) => ['t', tag.toLowerCase()])),
-    content: `${story.title}
-
-Have a read and join the conversation 👇
-    
-author: ${story.author_name.slice(0, 20)} #BuildOnBitcoin 
-    
-Read story: ${story.url}`,
+    tags,
+    content,
   } as Event;
 
   event.id = getEventHash(event);
