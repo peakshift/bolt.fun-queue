@@ -95,15 +95,15 @@ function createStoryRootEvent(story: {
 
   const content = `${story.title}
 
-  Have a read and join the conversation 👇
+Have a read and join the conversation 👇
       
-  <author: ${
+<author: ${
     story.author_nostr_pubkey
       ? `#[${pubkeyTagIndex}]`
       : story.author_name.slice(0, 20)
   }> #BuildOnBitcoin 
       
-  Read story: ${story.url}`;
+Read story: ${story.url}`;
 
   let event = {
     kind: 1,
