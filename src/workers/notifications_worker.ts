@@ -2,6 +2,7 @@ import axios from 'axios';
 import { nip19 } from 'nostr-tools';
 import { env } from '../env';
 import { createWorker } from '../queue';
+import { createRelaysPool, getUserByNostrPubkey } from '../utils/nostr';
 
 export const createNotificationsWorker = (queueName = 'notifications') =>
   createWorker<NotificationsQueue['Job'], any, NotificationsQueue['JobNames']>(
@@ -10,21 +11,31 @@ export const createNotificationsWorker = (queueName = 'notifications') =>
       const logger = job.log.bind(job);
 
       if (job.data.type === 'new-comment') {
-        const {
-          comment: { pubkey, url, content },
-        } = job.data;
+        const relayPool = createRelaysPool();
+        try {
+          const {
+            comment: { pubkey, url, content },
+          } = job.data;
 
-        const npub = nip19.npubEncode(pubkey);
-        const username = `${npub.slice(0, 8)}...${npub.slice(-4)}`;
+          const npub = nip19.npubEncode(pubkey);
+          let username = npub;
+          const userData = await getUserByNostrPubkey(pubkey, relayPool);
+          if (userData) username = userData.name ?? npub;
 
-        const notifBody = `New comment on story: ${url}
-**${username}**: _"${
-          content.slice(0, 40) + (content.length > 40 ? '...' : '')
-        }"_`;
+          const notifBody = `New comment on story: ${url}
+    **${username}**: _"${
+            content.slice(0, 40) + (content.length > 40 ? '...' : '')
+          }"_`;
 
-        await sendNotifications({ content: notifBody });
+          await sendNotifications({ content: notifBody });
 
-        logger('Notification send successfully');
+          logger('Notification send successfully');
+        } catch (error) {
+          console.log(error);
+          throw error;
+        } finally {
+          relayPool.close();
+        }
       }
 
       if (job.data.type === 'new-story') {

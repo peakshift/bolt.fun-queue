@@ -2,17 +2,9 @@ import { createWorker } from '../queue';
 import 'websocket-polyfill';
 import { getPublicKey, getEventHash, signEvent } from 'nostr-tools';
 import { env } from '../env';
-import { Event } from 'nostr-tools/event';
 import axios from 'axios';
-import { RelayPool } from 'nostr-relaypool';
-
-const RELAYS = [
-  'wss://nostr-pub.wellorder.net',
-  'wss://nostr-relay.untethr.me',
-  'wss://nostr.drss.io',
-  'wss://relay.damus.io',
-  'wss://nostr.swiss-enigma.ch',
-];
+import { createRelaysPool, publishNostrEvent } from '../utils/nostr';
+import { NostrToolsEventWithId } from 'nostr-relaypool/event';
 
 export const createNostrWorker = (queueName = 'nostr') =>
   createWorker<NostrQueue['Job'], any, NostrQueue['JobNames']>(
@@ -20,17 +12,15 @@ export const createNostrWorker = (queueName = 'nostr') =>
     async (job) => {
       const logger = job.log.bind(job);
 
-      if (job.data.type === 'create-story-root-event') {
-        let relayPool = new RelayPool(RELAYS);
+      const relayPool = createRelaysPool();
 
-        const storyRootEvent = createStoryRootEvent({ ...job.data.story });
+      try {
+        if (job.data.type === 'create-story-root-event') {
+          const storyRootEvent = createStoryRootEvent({ ...job.data.story });
 
-        try {
-          await publishEvent(storyRootEvent, relayPool, {
+          await publishNostrEvent(storyRootEvent, relayPool, {
             logger,
           });
-
-          logger('Event published on Nostr successfully');
 
           if (job.data.callback_url) {
             await makeCallbackRequest(job.data.callback_url, {
@@ -39,33 +29,18 @@ export const createNostrWorker = (queueName = 'nostr') =>
               root_event_id: storyRootEvent.id,
             });
           }
-        } catch (error) {
-          console.log(error);
-          throw error;
-        } finally {
-          relayPool.close();
         }
-      }
 
-      if (job.data.type === 'publish-profile-verification-event') {
-        let relayPool = new RelayPool(RELAYS);
-
-        try {
-          await publishEvent(job.data.event, relayPool, {
+        if (job.data.type === 'publish-profile-verification-event') {
+          await publishNostrEvent(job.data.event, relayPool, {
             logger,
           });
-
-          logger('Event published on Nostr successfully');
-        } catch (error) {
-          console.log(error);
-          throw error;
-        } finally {
-          relayPool.close();
         }
-      }
-
-      if (job.data.type === 'create-comment-event') {
-        logger('Creating comment event');
+      } catch (error) {
+        console.log(error);
+        throw error;
+      } finally {
+        relayPool.close();
       }
     }
   );
@@ -82,7 +57,7 @@ function createStoryRootEvent(story: {
 
   const tags = [
     ['r', story.canonical_url],
-    ['client', 'makers.bolt.fun'],
+    ['client', 'bolt.fun'],
     ['event_type', 'story-root-event'],
     ['t', 'buildonbitcoin'],
   ].concat(story.tags.map((tag) => ['t', tag.toLowerCase()]));
@@ -105,54 +80,19 @@ Have a read and join the conversation 👇
       
 Read story: ${story.url}`;
 
-  let event = {
+  const baseEvent = {
     kind: 1,
     pubkey,
     created_at: Math.floor(Date.now() / 1000),
     tags,
     content,
-  } as Event;
+  };
 
-  event.id = getEventHash(event);
-  event.sig = signEvent(event, env.BOLTFUN_NOSTR_PRIVATE_KEY);
-
-  return event;
-}
-
-async function publishEvent(
-  event: Event,
-  relayPool: RelayPool,
-  options?: Partial<{ logger: typeof console.log }>
-) {
-  const { logger = console.log } = options ?? {};
-
-  const relaysUrls = Array.from(relayPool.relayByUrl.keys());
-
-  return new Promise(async (resolve, reject) => {
-    logger('publishing...');
-
-    const publishTimeout = setTimeout(() => {
-      return reject(
-        `failed to publish event ${event.id!.slice(0, 5)}… to any relay.`
-      );
-    }, 8000);
-
-    relayPool.publish(event, relaysUrls);
-
-    const unsub = relayPool.subscribe(
-      [
-        {
-          ids: [event.id!],
-        },
-      ],
-      relaysUrls,
-      (event, afterEose, url) => {
-        clearTimeout(publishTimeout);
-        logger(`event ${event.id!.slice(0, 5)}… published to ${url}.`);
-        return resolve(`event ${event.id.slice(0, 5)}… published to ${url}.`);
-      }
-    );
-  });
+  return {
+    ...baseEvent,
+    id: getEventHash(baseEvent),
+    sig: signEvent(baseEvent, env.BOLTFUN_NOSTR_PRIVATE_KEY),
+  } as NostrToolsEventWithId;
 }
 
 async function makeCallbackRequest(
