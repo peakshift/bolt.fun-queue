@@ -23,7 +23,7 @@ export const createNotificationsWorker = (queueName = 'notifications') =>
           if (userData) username = userData.name ?? npub;
 
           const notifBody = `New comment on story: ${url}
-    **${username}**: _"${
+**${username}**: _"${
             content.slice(0, 40) + (content.length > 40 ? '...' : '')
           }"_`;
 
