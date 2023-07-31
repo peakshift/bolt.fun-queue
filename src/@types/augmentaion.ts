@@ -9,6 +9,7 @@ declare module 'fastify' {
         NotificationsQueue['JobNames']
       >;
       nostr: Queue<NostrQueue['Job'], any, NostrQueue['JobNames']>;
+      emails: Queue<EmailsQueue['Job'], any, EmailsQueue['JobNames']>;
     };
   }
 }

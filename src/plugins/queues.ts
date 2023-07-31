@@ -4,6 +4,7 @@ import { createNotificationsWorker } from '../workers/notifications_worker';
 import fp from 'fastify-plugin';
 import { createNostrWorker } from '../workers/nostr_worker';
 import { env } from '../env';
+import { createEmailsWorker } from '../workers/emails_worker';
 
 const handler: FastifyPluginCallback = async (fastify, options, done) => {
   if (!fastify.queues) {
@@ -12,8 +13,8 @@ const handler: FastifyPluginCallback = async (fastify, options, done) => {
     const NAME_SUFFIX = env.NODE_ENV === 'development' ? ' (Development)' : '';
 
     const notificationsQueue = createQueue('Notifications Queue' + NAME_SUFFIX);
-    queues['notifications'] = notificationsQueue;
-    await createNotificationsWorker(notificationsQueue.name);
+
+    const emailsQueue = createQueue('Emails Queue' + NAME_SUFFIX);
 
     const nostrQueue = createQueue('Nostr Queue' + NAME_SUFFIX, {
       defaultJobOptions: {
@@ -21,8 +22,16 @@ const handler: FastifyPluginCallback = async (fastify, options, done) => {
         backoff: { type: 'exponential', delay: 1000 },
       },
     });
+
+    await Promise.all([
+      createEmailsWorker(emailsQueue.name),
+      createNotificationsWorker(notificationsQueue.name),
+      createNostrWorker(nostrQueue.name),
+    ]);
+
     queues['nostr'] = nostrQueue;
-    await createNostrWorker(nostrQueue.name);
+    queues['notifications'] = notificationsQueue;
+    queues['emails'] = emailsQueue;
 
     fastify.decorate('queues', queues);
   }

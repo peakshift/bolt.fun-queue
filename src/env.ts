@@ -25,4 +25,8 @@ export const env = envsafe({
   BF_RELAY_PASS: str(),
 
   DISCORD_NOTIFICATIONS_WEBHOOK_URL: url(),
+
+  EMAILS_SERVICE_URL: url(),
+  EMAILS_SERVICE_USERNAME: str(),
+  EMAILS_SERVICE_PASSWORD: str(),
 });

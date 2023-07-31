@@ -58,3 +58,32 @@ type NotificationsQueue = {
       };
   JobNames: NotificationsQueue['Job']['type'];
 };
+
+type EmailsQueue = {
+  Job:
+    | {
+        type: 'new-user-registered-in-tournament';
+        data: {
+          user_id: number;
+          user_name: string;
+          tournament_id: number;
+          email: string;
+        };
+      }
+    | {
+        type: 'new-project-submitted-to-tournament';
+        data: {
+          tournament_id: number;
+          track_id: number;
+          project_id: number;
+          user_id: number;
+        };
+      };
+  JobNames: EmailsQueue['Job']['type'];
+};
+
+type GetQueueJobDataType<
+  Queue extends { Job: { type: string }; JobNames: string },
+  JobType extends Queue['JobNames'],
+  _Jobs extends Queue['Job'] = Queue['Job']
+> = _Jobs extends { type: JobType } ? _Jobs : never;
