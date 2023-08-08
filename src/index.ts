@@ -4,7 +4,7 @@ import { FastifyAdapter } from '@bull-board/fastify';
 import fastify, { FastifyInstance, FastifyRequest } from 'fastify';
 import { Server, IncomingMessage, ServerResponse } from 'http';
 import { env } from './env';
-import addJobRoutes from './routes/add-job.routes';
+import addJobRoutes from './routes/add-job-routes.ts';
 import { createQueue } from './queue';
 import { createNotificationsWorker } from './workers/notifications_worker';
 import { validate } from './utils/auth';
@@ -40,41 +40,6 @@ const run = async () => {
   });
 
   server.register(addJobRoutes, { prefix: '/add-job' });
-
-  // server.get(
-  //   '/add-job',
-  //   {
-  //     schema: {
-  //       querystring: {
-  //         type: 'object',
-  //         properties: {
-  //           title: { type: 'string' },
-  //           id: { type: 'string' },
-  //         },
-  //       },
-  //     },
-  //   },
-  //   (req: FastifyRequest<{ Querystring: AddJobQueryString }>, reply) => {
-  //     if (
-  //       req.query == null ||
-  //       req.query.email == null ||
-  //       req.query.id == null
-  //     ) {
-  //       reply
-  //         .status(400)
-  //         .send({ error: 'Requests must contain both an id and a email' });
-
-  //       return;
-  //     }
-
-  //     const { email, id } = req.query;
-  //     notificationsQueue.add(`WelcomeEmail-${id}`, { email });
-
-  //     reply.send({
-  //       ok: true,
-  //     });
-  //   }
-  // );
 
   await server.listen({
     port: env.PORT,
