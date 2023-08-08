@@ -52,6 +52,7 @@
     "envsafe": "^2.0.3",
     "fastify": "^4.5.3",
     "fastify-plugin": "^4.5.0",
+    "meilisearch": "^0.34.1",
     "node-fetch": "^2.6.8",
     "nostr-relaypool": "^0.5.5",
     "nostr-tools": "^1.2.0",
