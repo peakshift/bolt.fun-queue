@@ -19,6 +19,7 @@ export const env = envsafe({
   }),
 
   BOLTFUN_NOSTR_PRIVATE_KEY: str(),
+  BF_SERVERLESS_SERVICE_URL: url(),
   BF_SERVERLESS_SERVICE_USERNAME: str(),
   BF_SERVERLESS_SERVICE_PASS: str(),
   BF_RELAY_USERNAME: str(),

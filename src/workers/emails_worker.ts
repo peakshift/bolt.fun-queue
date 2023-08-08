@@ -1,5 +1,6 @@
-import { EMAILS_TEMPLATES, TOURNAMENTS_LISTS } from '../config';
+import { EMAILS_TEMPLATES } from '../config';
 import { createWorker } from '../queue';
+import { API } from '../services/api';
 import EmailService from '../services/emails/email.service';
 
 export const createEmailsWorker = (queueName = 'emails') =>
@@ -33,23 +34,32 @@ const handleNewUserRegisteredInTournament = async (
   const { email, tournament_id, user_id, user_name } = data;
 
   // create a Subscriber object
-  const createdSubsciber = await EmailService.createSubscriber(
+  const subscriber = await EmailService.createOrUpdateSubscriber(
     email,
     user_name,
     { user_id }
   );
 
+  const tournamentListId = await getListIdForTournament(tournament_id);
+
+  if (!tournamentListId)
+    throw new Error(
+      'No subscribers list found for this tournament. Please create one in the dashboard.'
+    );
+
   // add this object to the tournament's subscribers list
-  await EmailService.addSubscriberToList(
-    createdSubsciber.id,
-    getListIdForTournament(tournament_id)
-  );
+  await EmailService.addSubscriberToList(subscriber.id, tournamentListId);
+
+  const tournamentData = await API.tournament.getById(tournament_id);
+
+  const tournament_name = tournamentData.title;
+
   // send an email confirming participation to the user
   await EmailService.sendTransactionalEmail({
-    subscriberId: createdSubsciber.id,
+    subscriberId: subscriber.id,
     templateId: EMAILS_TEMPLATES.TournamentRegistrationTemplateId,
     data: {
-      tournament_name: getTournamentName(tournament_id),
+      tournament_name,
     },
   });
 };
@@ -64,59 +74,57 @@ const handleNewProjectSubmittedToTournament = async (
   // query the user's Subscriber object
   const subscriber = await EmailService.getSubscriberByUserId(user_id);
   if (!subscriber) throw new Error('Subscriber not found');
+
+  const tournamentData = await API.tournament.getById(tournament_id);
+
+  const tournament_name = tournamentData.title;
+  const track_name = tournamentData.tracks.find(
+    (t) => t.id === track_id
+  )?.title;
+
   // send an email confirming submission to the user
   await EmailService.sendTransactionalEmail({
     subscriberId: subscriber.id,
     templateId: EMAILS_TEMPLATES.ProjectSubmissionTemplateId,
     data: {
-      tournament_name: getTournamentName(tournament_id),
-      track_name: getTournamentTrackName(tournament_id, track_id),
+      tournament_name,
+      track_name,
     },
   });
+
+  const tournamentTrackListId = await getListIdForTournamentTrack(track_id);
+
+  if (!tournamentTrackListId)
+    throw new Error(
+      'No subscribers list found for this tournament track. Please create one in the dashboard.'
+    );
+
   // add the user to the Track's subscribers list if doesn't exist
-  await EmailService.addSubscriberToList(
-    subscriber.id,
-    getListIdForTournamentTrack(tournament_id, track_id)
-  );
+  await EmailService.addSubscriberToList(subscriber.id, tournamentTrackListId);
 };
 
-function getListIdForTournament(tournamentId: number) {
-  const tournament = TOURNAMENTS_LISTS.find((t) => t.id === tournamentId);
-  if (!tournament) {
-    throw new Error('Tournament not found');
-  }
-  return tournament.subsListId;
+async function getListIdForTournament(tournamentId: number) {
+  const allLists = await EmailService.getAllLists();
+  const found = allLists.results.find((list) =>
+    list.tags.includes(`tournament-id:${tournamentId}`)
+  );
+  return found?.id;
 }
 
-function getTournamentName(tournamentId: number) {
-  const tournament = TOURNAMENTS_LISTS.find((t) => t.id === tournamentId);
-  if (!tournament) {
-    throw new Error('Tournament not found');
-  }
-  return tournament.name;
+async function getListIdForTournamentTrack(trackId: number) {
+  const allLists = await EmailService.getAllLists();
+  const found = allLists.results.find((list) =>
+    list.tags.includes(`track-id:${trackId}`)
+  );
+  return found?.id;
 }
 
-function getTournamentTrackName(tournamentId: number, trackId: number) {
-  const tournament = TOURNAMENTS_LISTS.find((t) => t.id === tournamentId);
-  if (!tournament) {
-    throw new Error('Tournament not found');
-  }
-
-  const track = tournament.tracks.find((t) => t.id === trackId);
-  if (!track) {
-    throw new Error('Track not found');
-  }
-  return track.name;
+function createTournamentList(tournamentId: number) {
+  // create a list with tag: `tournament-id:${tournamentId}`
+  // return list.id
 }
 
-function getListIdForTournamentTrack(tournamentId: number, trackId: number) {
-  const tournament = TOURNAMENTS_LISTS.find((t) => t.id === tournamentId);
-  if (!tournament) {
-    throw new Error('Tournament not found');
-  }
-  const track = tournament.tracks.find((t) => t.id === trackId);
-  if (!track) {
-    throw new Error('Track not found');
-  }
-  return track.subsListId;
+function createTournamentTrackList(trackId: number) {
+  // create a list with tag: `track-id:${trackId}`
+  // return list.id
 }

@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { env } from '../../env';
-import { Subscriber } from './types';
+import { Subscriber, EmailList, UpdateSubscriber } from './types';
 
 const EmailService = {
   getSubscriberByEmail: async (email: string) => {
@@ -30,19 +30,55 @@ const EmailService = {
     return null;
   },
 
-  createSubscriber: async (
+  createOrUpdateSubscriber: async (
     email: string,
     name: string,
     extraData?: Record<string, any>
   ) => {
-    const existingEmail = await EmailService.getSubscriberByEmail(email);
+    const existingSubsrciber = await EmailService.getSubscriberByEmail(email);
 
-    if (existingEmail) return existingEmail;
+    if (existingSubsrciber) {
+      return EmailService.updateSubscriber(existingSubsrciber, {
+        name,
+        ...(extraData && { attribs: extraData }),
+      });
+    }
 
     return emailApiFetcher<Subscriber>('/api/subscribers', 'POST', {
       email,
       name,
       ...(extraData && { attribs: extraData }),
+    });
+  },
+
+  updateSubscriber: async (
+    subscriber: Subscriber,
+    new_data: Partial<
+      Pick<Subscriber, 'name' | 'email' | 'status' | 'lists' | 'attribs'>
+    >
+  ) => {
+    const newLists = subscriber.lists
+      .map((l) => l.id)
+      .concat(new_data.lists?.map((l) => l.id) || []);
+
+    const updatedSubscriber: UpdateSubscriber = {
+      ...subscriber,
+      ...new_data,
+      lists: newLists,
+    };
+
+    await emailApiFetcher<boolean>(
+      `/api/subscribers/${subscriber.id}`,
+      'PUT',
+      updatedSubscriber
+    );
+
+    return updatedSubscriber;
+  },
+
+  getAllLists: () => {
+    return emailApiFetcher<{ results: EmailList[] }>('/api/lists', 'GET', {
+      per_page: 'all',
     });
   },
 
