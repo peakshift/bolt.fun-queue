@@ -9,10 +9,6 @@ export default async function emailsRoutes(fastify: FastifyInstance) {
     email: Type.String(),
   });
 
-  fastify.get('/health', async (request, reply) => {
-    reply.send({ status: 'OK' });
-  });
-
   fastify.post(
     '/new-user-registered-in-tournament',
     {
