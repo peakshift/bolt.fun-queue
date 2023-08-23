@@ -1,4 +1,10 @@
 import { Queue } from 'bullmq';
+import {
+  EmailsQueue,
+  NostrQueue,
+  NotificationsQueue,
+  SearchQueue,
+} from './queues.types';
 
 declare module 'fastify' {
   export interface FastifyInstance {
@@ -10,6 +16,7 @@ declare module 'fastify' {
       >;
       nostr: Queue<NostrQueue['Job'], any, NostrQueue['JobNames']>;
       emails: Queue<EmailsQueue['Job'], any, EmailsQueue['JobNames']>;
+      search: Queue<SearchQueue['Job'], any, SearchQueue['JobNames']>;
     };
   }
 }

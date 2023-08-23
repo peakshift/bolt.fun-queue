@@ -1,4 +1,6 @@
-type NostrQueue = {
+import { SyncWithSearchDBPayload } from '../routes/add-job-routes.ts/search';
+
+export type NostrQueue = {
   Job:
     | {
         type: 'create-story-root-event';
@@ -32,7 +34,7 @@ type NostrQueue = {
   JobNames: NostrQueue['Job']['type'];
 };
 
-type NotificationsQueue = {
+export type NotificationsQueue = {
   Job:
     | {
         type: 'new-comment';
@@ -59,7 +61,7 @@ type NotificationsQueue = {
   JobNames: NotificationsQueue['Job']['type'];
 };
 
-type EmailsQueue = {
+export type EmailsQueue = {
   Job:
     | {
         type: 'new-user-registered-in-tournament';
@@ -82,7 +84,12 @@ type EmailsQueue = {
   JobNames: EmailsQueue['Job']['type'];
 };
 
-type GetQueueJobDataType<
+export type SearchQueue = {
+  Job: SyncWithSearchDBPayload;
+  JobNames: 'sync-with-search-db';
+};
+
+export type GetQueueJobDataType<
   Queue extends { Job: { type: string }; JobNames: string },
   JobType extends Queue['JobNames'],
   _Jobs extends Queue['Job'] = Queue['Job']

@@ -3,6 +3,7 @@ import { nip19 } from 'nostr-tools';
 import { env } from '../env';
 import { createWorker } from '../queue';
 import { createRelaysPool, getUserByNostrPubkey } from '../utils/nostr';
+import { NotificationsQueue } from '../@types/queues.types';
 
 export const createNotificationsWorker = (queueName = 'notifications') =>
   createWorker<NotificationsQueue['Job'], any, NotificationsQueue['JobNames']>(
