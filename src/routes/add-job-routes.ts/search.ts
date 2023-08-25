@@ -14,8 +14,8 @@ const storyUpdateObjectSchema = Type.Union([
     action: Type.Literal('update'),
     data: Type.Object({
       id: Type.Number(),
-      title: Type.String(),
-      body: Type.String(),
+      // title: Type.String(),
+      // body: Type.String(),
     }),
   }),
   Type.Object({
@@ -23,8 +23,8 @@ const storyUpdateObjectSchema = Type.Union([
     action: Type.Literal('create'),
     data: Type.Object({
       id: Type.Number(),
-      title: Type.String(),
-      body: Type.String(),
+      // title: Type.String(),
+      // body: Type.String(),
     }),
   }),
 ]);
@@ -42,9 +42,9 @@ const projectUpdateObjectSchema = Type.Union([
     action: Type.Literal('update'),
     data: Type.Object({
       id: Type.Number(),
-      title: Type.String(),
-      description: Type.String(),
-      tags: Type.Array(Type.String()),
+      // title: Type.String(),
+      // description: Type.String(),
+      // tags: Type.Array(Type.String()),
     }),
   }),
   Type.Object({
@@ -52,9 +52,9 @@ const projectUpdateObjectSchema = Type.Union([
     action: Type.Literal('create'),
     data: Type.Object({
       id: Type.Number(),
-      title: Type.String(),
-      description: Type.String(),
-      tags: Type.Array(Type.String()),
+      // title: Type.String(),
+      // description: Type.String(),
+      // tags: Type.Array(Type.String()),
     }),
   }),
 ]);
@@ -72,11 +72,11 @@ const userUpdateObjectSchema = Type.Union([
     action: Type.Literal('update'),
     data: Type.Object({
       id: Type.Number(),
-      name: Type.String(),
-      bio: Type.String(),
-      jobTitle: Type.String(),
-      roles: Type.Array(Type.String()),
-      skills: Type.Array(Type.String()),
+      // name: Type.String(),
+      // bio: Type.String(),
+      // jobTitle: Type.String(),
+      // roles: Type.Array(Type.String()),
+      // skills: Type.Array(Type.String()),
     }),
   }),
   Type.Object({
@@ -84,11 +84,11 @@ const userUpdateObjectSchema = Type.Union([
     action: Type.Literal('create'),
     data: Type.Object({
       id: Type.Number(),
-      name: Type.String(),
-      bio: Type.String(),
-      jobTitle: Type.String(),
-      roles: Type.Array(Type.String()),
-      skills: Type.Array(Type.String()),
+      // name: Type.String(),
+      // bio: Type.String(),
+      // jobTitle: Type.String(),
+      // roles: Type.Array(Type.String()),
+      // skills: Type.Array(Type.String()),
     }),
   }),
 ]);

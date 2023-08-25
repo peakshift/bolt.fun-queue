@@ -29,7 +29,20 @@ export const createSearchWorker = (queueName = 'search') =>
         switch (action) {
           case 'create':
           case 'update':
-            await client.index(index).addDocuments([job.data.data]);
+            const objectData = await API[objectType].getById(id).catch((e) => {
+              logger(
+                'Error fetching data from API for object type: ' +
+                  objectType +
+                  ' and id: ' +
+                  id +
+                  ' with error: ' +
+                  e +
+                  '.'
+              );
+              throw e;
+            });
+
+            await client.index(index).addDocuments([objectData]);
             break;
           case 'delete':
             await client.index(index).deleteDocument(id);
