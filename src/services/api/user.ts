@@ -39,13 +39,10 @@ export async function getById(id: number) {
           bio
           location
           skills {
-            id
             title
           }
           roles {
-            id
             title
-            icon
             level
           }
         }

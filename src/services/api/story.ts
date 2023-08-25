@@ -37,12 +37,10 @@ export async function getById(id: number) {
             id
             name
             avatar
-            join_date
-            primary_nostr_key
+            join_date 
           }
           body
-          tags {
-            id
+          tags { 
             title
           }
           votes_count
@@ -52,8 +50,7 @@ export async function getById(id: number) {
           nostr_event_id
           project {
             id
-            title
-            thumbnail_image
+            title 
             hashtag
           }
         }
