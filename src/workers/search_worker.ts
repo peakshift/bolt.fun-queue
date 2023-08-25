@@ -20,12 +20,12 @@ export const createSearchWorker = (queueName = 'search') =>
         const action = job.data.action; // "delete" | "update" | "create"
         const id = job.data.data.id; // number
 
-        switch (job.data.action) {
+        switch (action) {
           case 'create' || 'update':
-            await client.index(index).addDocuments(data);
+            await client.index(objectType).addDocuments([job.data.data]);
             break;
           case 'delete':
-            await client.index(index).deleteDocument(data.id);
+            await client.index(objectType).deleteDocument(id);
         }
       } catch (error) {
         console.log(error);
