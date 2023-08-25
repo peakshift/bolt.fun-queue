@@ -103,7 +103,7 @@ export type SyncWithSearchDBPayload = Static<typeof syncWithDBBodySchema>;
 
 export default async function searchRoutes(fastify: FastifyInstance) {
   fastify.post(
-    '/sync-with-emails-db',
+    '/sync-with-search-db',
     {
       schema: {
         body: syncWithDBBodySchema,
