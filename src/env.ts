@@ -30,4 +30,7 @@ export const env = envsafe({
   EMAILS_SERVICE_URL: url(),
   EMAILS_SERVICE_USERNAME: str(),
   EMAILS_SERVICE_PASSWORD: str(),
+
+  MEILISEARCH_HOST: str(),
+  MEILISEARCH_API_KEY: str(),
 });

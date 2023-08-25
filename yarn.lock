@@ -2539,6 +2539,13 @@
   dependencies:
     "luxon" "^3.2.1"
 
+"cross-fetch@^3.1.6":
+  "integrity" "sha512-cvA+JwZoU0Xq+h6WkMvAUqPEYy92Obet6UdKLfW60qn99ftItKjB5T+BkyWOFWe2pUyfQ+IJHmpOTznqk1M6Kg=="
+  "resolved" "https://registry.npmjs.org/cross-fetch/-/cross-fetch-3.1.8.tgz"
+  "version" "3.1.8"
+  dependencies:
+    "node-fetch" "^2.6.12"
+
 "cross-spawn@^7.0.0", "cross-spawn@^7.0.2", "cross-spawn@^7.0.3":
   "integrity" "sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w=="
   "resolved" "https://registry.npmjs.org/cross-spawn/-/cross-spawn-7.0.3.tgz"
@@ -4933,6 +4940,13 @@
   dependencies:
     "tmpl" "1.0.5"
 
+"meilisearch@^0.34.1":
+  "integrity" "sha512-7mrLp88JfrbvhAMhOjNPzHGd2iCLHgzNhkveMxppMOToMLQw4Ygof4ksQ9uFi7SKq3UwEhIoMoFT1rUHLD3vWQ=="
+  "resolved" "https://registry.npmjs.org/meilisearch/-/meilisearch-0.34.1.tgz"
+  "version" "0.34.1"
+  dependencies:
+    "cross-fetch" "^3.1.6"
+
 "merge-stream@^2.0.0":
   "integrity" "sha512-abv/qOcuPfk3URPfDzmZU1LKmuw8kT+0nIHvKrKgFrwifol/doWcdA4ZqsWQ8ENrFKkd67Mfpo/LovbIUsbt3w=="
   "resolved" "https://registry.npmjs.org/merge-stream/-/merge-stream-2.0.0.tgz"
@@ -5061,10 +5075,10 @@
     "lower-case" "^2.0.2"
     "tslib" "^2.0.3"
 
-"node-fetch@^2.6.8":
-  "integrity" "sha512-RZ6dBYuj8dRSfxpUSu+NsdF1dpPpluJxwOp+6IoDp/sH2QNDSvurYsAa+F1WxY2RjA1iP93xhcsUoYbF2XBqVg=="
-  "resolved" "https://registry.npmjs.org/node-fetch/-/node-fetch-2.6.8.tgz"
-  "version" "2.6.8"
+"node-fetch@^2.6.12", "node-fetch@^2.6.8":
+  "integrity" "sha512-C/fGU2E8ToujUivIO0H+tpQ6HWo4eEmchoPIoXtxCrVghxdKq+QOHqEZW7tuP3KlV3bC8FRMO5nMCC7Zm1VP6g=="
+  "resolved" "https://registry.npmjs.org/node-fetch/-/node-fetch-2.6.12.tgz"
+  "version" "2.6.12"
   dependencies:
     "whatwg-url" "^5.0.0"
 

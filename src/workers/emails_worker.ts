@@ -1,3 +1,4 @@
+import { EmailsQueue, GetQueueJobDataType } from '../@types/queues.types';
 import { EMAILS_TEMPLATES } from '../config';
 import { createWorker } from '../queue';
 import { API } from '../services/api';

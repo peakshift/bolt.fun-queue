@@ -5,6 +5,7 @@ import { env } from '../env';
 import axios from 'axios';
 import { createRelaysPool, publishNostrEvent } from '../utils/nostr';
 import { NostrToolsEventWithId } from 'nostr-relaypool/event';
+import { NostrQueue } from '../@types/queues.types';
 
 export const createNostrWorker = (queueName = 'nostr') =>
   createWorker<NostrQueue['Job'], any, NostrQueue['JobNames']>(
