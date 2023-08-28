@@ -18,6 +18,10 @@ export const createEmailsWorker = (queueName = 'emails') =>
         if (job.data.type === 'new-project-submitted-to-tournament') {
           await handleNewProjectSubmittedToTournament(job.data.data);
         }
+
+        if (job.data.type === 'send-otp') {
+          await handleSendOtp(job.data.data.email, job.data.data.otp);
+        }
       } catch (error) {
         console.log(error);
         logger(String(error));
@@ -102,6 +106,17 @@ const handleNewProjectSubmittedToTournament = async (
 
   // add the user to the Track's subscribers list if doesn't exist
   await EmailService.addSubscriberToList(subscriber.id, tournamentTrackListId);
+};
+
+const handleSendOtp = async (email: string, otp: string) => {
+  // send an email with the OTP to the user
+  await EmailService.sendTransactionalEmail({
+    email,
+    templateId: EMAILS_TEMPLATES.OTPTemplateId,
+    data: {
+      otp,
+    },
+  });
 };
 
 async function getListIdForTournament(tournamentId: number) {

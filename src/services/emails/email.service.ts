@@ -105,7 +105,7 @@ const EmailService = {
     if (!email && !subscriberId)
       throw new Error('Either email or subscriberId must be provided');
     return emailApiFetcher('/api/tx', 'POST', {
-      ...(email && { email }),
+      ...(email && { subscriber_email: email }),
       ...(subscriberId && { subscriber_id: subscriberId }),
       template_id: templateId,
       data: data,

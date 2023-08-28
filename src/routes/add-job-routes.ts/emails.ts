@@ -65,4 +65,31 @@ export default async function emailsRoutes(fastify: FastifyInstance) {
       reply.send({ status: 'OK' });
     }
   );
+
+  const sendOTPBodySchema = Type.Object({
+    email: Type.String(),
+    otp: Type.String(),
+  });
+
+  fastify.post(
+    '/send-otp',
+    {
+      schema: {
+        body: sendOTPBodySchema,
+      },
+    },
+    async (request, reply) => {
+      const { email, otp } = request.body as Static<typeof sendOTPBodySchema>;
+
+      fastify.queues.emails.add(`send-otp`, {
+        type: 'send-otp',
+        data: {
+          email,
+          otp,
+        },
+      });
+
+      reply.send({ status: 'OK' });
+    }
+  );
 }

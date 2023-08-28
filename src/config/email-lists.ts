@@ -12,4 +12,5 @@ type TournamentEmailList = {
 export const EMAILS_TEMPLATES = {
   TournamentRegistrationTemplateId: 4,
   ProjectSubmissionTemplateId: 5,
+  OTPTemplateId: 9,
 };

@@ -80,6 +80,13 @@ export type EmailsQueue = {
           project_id: number;
           user_id: number;
         };
+      }
+    | {
+        type: 'send-otp';
+        data: {
+          email: string;
+          otp: string;
+        };
       };
   JobNames: EmailsQueue['Job']['type'];
 };
