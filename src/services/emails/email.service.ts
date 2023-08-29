@@ -51,6 +51,22 @@ const EmailService = {
     });
   },
 
+  createSubscriberIfNotExists: async (
+    email: string,
+    name: string,
+    extraData?: Record<string, any>
+  ) => {
+    const existingSubsrciber = await EmailService.getSubscriberByEmail(email);
+
+    if (existingSubsrciber) return existingSubsrciber;
+
+    return emailApiFetcher<Subscriber>('/api/subscribers', 'POST', {
+      email,
+      name,
+      ...(extraData && { attribs: extraData }),
+    });
+  },
+
   updateSubscriber: async (
     subscriber: Subscriber,
     new_data: Partial<
@@ -91,7 +107,7 @@ const EmailService = {
     });
   },
 
-  sendTransactionalEmail: ({
+  sendTransactionalEmail: async ({
     email,
     subscriberId,
     templateId,
@@ -102,11 +118,17 @@ const EmailService = {
     templateId: number;
     data?: Record<string, any>;
   }) => {
-    if (!email && !subscriberId)
-      throw new Error('Either email or subscriberId must be provided');
+    if (!subscriberId && !email)
+      throw new Error('Either subscriberId or email must be provided');
+
+    if (!subscriberId)
+      subscriberId = await EmailService.createSubscriberIfNotExists(
+        email!,
+        email!
+      ).then((s) => s.id);
+
     return emailApiFetcher('/api/tx', 'POST', {
-      ...(email && { subscriber_email: email }),
-      ...(subscriberId && { subscriber_id: subscriberId }),
+      subscriber_id: subscriberId,
       template_id: templateId,
       data: data,
     });
