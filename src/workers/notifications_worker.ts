@@ -2,8 +2,9 @@ import axios from 'axios';
 import { nip19 } from 'nostr-tools';
 import { env } from '../env';
 import { createWorker } from '../queue';
-import { createRelaysPool, getUserByNostrPubkey } from '../utils/nostr';
+import { getUserByNostrPubkey } from '../utils/nostr';
 import { NotificationsQueue } from '../@types/queues.types';
+import { RelayPool } from '../services/nostr';
 
 export const createNotificationsWorker = (queueName = 'notifications') =>
   createWorker<NotificationsQueue['Job'], any, NotificationsQueue['JobNames']>(
@@ -12,14 +13,14 @@ export const createNotificationsWorker = (queueName = 'notifications') =>
       const logger = job.log.bind(job);
 
       if (job.data.type === 'new-comment') {
-        const relayPool = createRelaysPool();
+        const relayPool = new RelayPool();
         try {
           const {
             comment: { pubkey, url, content },
           } = job.data;
 
           const npub = nip19.npubEncode(pubkey);
-          let username = npub;
+          let username: string = npub;
           const userData = await getUserByNostrPubkey(pubkey, relayPool);
           if (userData) username = userData.name ?? npub;
 
@@ -60,6 +61,6 @@ function sendNotifications({ content }: { content: string }) {
 }
 
 function notifyDiscord({ content }: { content: string }) {
-  if (!env.DISCORD_NOTIFICATIONS_WEBHOOK_URL) return;
+  if (!env.DISCORD_NOTIFICATIONS_WEBHOOK_URL) return null;
   return axios.post(env.DISCORD_NOTIFICATIONS_WEBHOOK_URL, { content });
 }

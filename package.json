@@ -34,11 +34,12 @@
   "devDependencies": {
     "@tsconfig/recommended": "^1.0.1",
     "@types/node-fetch": "^2.6.2",
-    "dts-cli": "^1.6.0",
+    "dts-cli": "^2.0.3",
     "husky": "^8.0.1",
     "nodemon": "^2.0.20",
+    "tsc-watch": "^6.0.4",
     "tslib": "^2.4.0",
-    "typescript": "^4.8.3"
+    "typescript": "^5.2.2"
   },
   "dependencies": {
     "@bull-board/api": "^4.2.2",
@@ -54,8 +55,7 @@
     "fastify-plugin": "^4.5.0",
     "meilisearch": "^0.34.1",
     "node-fetch": "^2.6.8",
-    "nostr-relaypool": "^0.5.5",
-    "nostr-tools": "^1.2.0",
+    "nostr-tools": "^1.14.2",
     "websocket-polyfill": "^0.0.3",
     "ws": "^8.12.1"
   }

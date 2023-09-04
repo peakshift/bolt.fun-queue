@@ -1,11 +1,11 @@
 import { createWorker } from '../queue';
 import 'websocket-polyfill';
-import { getPublicKey, getEventHash, signEvent, nip04 } from 'nostr-tools';
 import { env } from '../env';
 import axios from 'axios';
-import { createRelaysPool, publishNostrEvent } from '../utils/nostr';
-import { NostrToolsEvent, NostrToolsEventWithId } from 'nostr-relaypool/event';
+import { nip04, getPublicKey, getEventHash, getSignature } from 'nostr-tools';
 import { NostrQueue } from '../@types/queues.types';
+import { NostrEvent, UnsignedNostrEvent } from '../@types/nostr.types';
+import { RelayPool } from '../services/nostr';
 
 export const createNostrWorker = (queueName = 'nostr') =>
   createWorker<NostrQueue['Job'], any, NostrQueue['JobNames']>(
@@ -13,13 +13,13 @@ export const createNostrWorker = (queueName = 'nostr') =>
     async (job) => {
       const logger = job.log.bind(job);
 
-      let relayPool = createRelaysPool();
+      let relayPool = new RelayPool();
 
       try {
         if (job.data.type === 'create-story-root-event') {
           const storyRootEvent = createStoryRootEvent({ ...job.data.story });
 
-          await publishNostrEvent(storyRootEvent, relayPool, {
+          await relayPool.publish(storyRootEvent, {
             logger,
           });
 
@@ -33,7 +33,7 @@ export const createNostrWorker = (queueName = 'nostr') =>
         }
 
         if (job.data.type === 'publish-profile-verification-event') {
-          await publishNostrEvent(job.data.event, relayPool, {
+          await relayPool.publish(job.data.event, {
             logger,
           });
         }
@@ -41,9 +41,13 @@ export const createNostrWorker = (queueName = 'nostr') =>
         if (job.data.type === 'send-dm') {
           const { recipient_nostr_pubkey, dm, relay } = job.data.data;
           if (relay) {
-            relayPool = createRelaysPool([relay]);
+            relayPool = new RelayPool([relay]);
           }
-          await sendDM(dm, recipient_nostr_pubkey);
+          const event = await createDMEvent(dm, recipient_nostr_pubkey);
+
+          await relayPool.publish(event, {
+            logger,
+          });
         }
       } catch (error) {
         console.log(error);
@@ -97,11 +101,13 @@ Read story: ${story.url}`;
     content,
   };
 
+  const sig = getSignature(baseEvent, env.BOLTFUN_NOSTR_PRIVATE_KEY);
+
   return {
     ...baseEvent,
     id: getEventHash(baseEvent),
-    sig: signEvent(baseEvent, env.BOLTFUN_NOSTR_PRIVATE_KEY),
-  } as NostrToolsEventWithId;
+    sig,
+  } as NostrEvent;
 }
 
 async function makeCallbackRequest(
@@ -118,12 +124,7 @@ async function makeCallbackRequest(
   });
 }
 
-async function sendDM(message: string, recipientPubkey: string) {
-  // const encryptedContent = await encryptMessage(
-  //   msgInput,
-  //   currentOpenContact
-  // );
-
+async function createDMEvent(message: string, recipientPubkey: string) {
   const encryptedContent = await encrypteMessage(
     message,
     env.BOLTFUN_NOSTR_PRIVATE_KEY,
@@ -138,9 +139,9 @@ async function sendDM(message: string, recipientPubkey: string) {
     kind: 4,
     tags: [['p', recipientPubkey]],
     pubkey: myPubkey,
-  } as NostrToolsEvent;
+  } as UnsignedNostrEvent;
 
-  const sig = await signEvent(baseEvent, env.BOLTFUN_NOSTR_PRIVATE_KEY);
+  const sig = await getSignature(baseEvent, env.BOLTFUN_NOSTR_PRIVATE_KEY);
 
   const id = getEventHash(baseEvent);
 
@@ -148,9 +149,9 @@ async function sendDM(message: string, recipientPubkey: string) {
     ...baseEvent,
     sig,
     id,
-  } as NostrToolsEventWithId;
+  } as NostrEvent;
 
-  // const pubs = relayPool!.publish(Relays.getRelays(), event);
+  return event;
 }
 
 function encrypteMessage(

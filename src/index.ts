@@ -9,6 +9,9 @@ import { createQueue } from './queue';
 import { createNotificationsWorker } from './workers/notifications_worker';
 import { validate } from './utils/auth';
 import queuesPlugin from './plugins/queues';
+import { webcrypto } from 'node:crypto';
+
+global.crypto = webcrypto as any;
 
 interface AddJobQueryString {
   id: string;
