@@ -30,6 +30,14 @@ export type NostrQueue = {
     | {
         type: 'create-comment-event';
         comment: any;
+      }
+    | {
+        type: 'send-dm';
+        data: {
+          recipient_nostr_pubkey: string;
+          dm: string;
+          relay?: string;
+        };
       };
   JobNames: NostrQueue['Job']['type'];
 };

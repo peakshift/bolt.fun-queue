@@ -67,4 +67,35 @@ export default async function nostrRoutes(fastify: FastifyInstance) {
       reply.send({ status: 'OK' });
     }
   );
+
+  const sendDMBodySchema = Type.Object({
+    recipient_nostr_pubkey: Type.String(),
+    dm: Type.String(),
+    relay: Type.Optional(Type.String()),
+  });
+
+  fastify.post(
+    '/send-dm',
+    {
+      schema: {
+        body: sendDMBodySchema,
+      },
+    },
+    async (request, reply) => {
+      const { recipient_nostr_pubkey, dm, relay } = request.body as Static<
+        typeof sendDMBodySchema
+      >;
+
+      fastify.queues.nostr.add(`send-dm`, {
+        type: 'send-dm',
+        data: {
+          recipient_nostr_pubkey,
+          dm,
+          relay,
+        },
+      });
+
+      reply.send({ status: 'OK' });
+    }
+  );
 }

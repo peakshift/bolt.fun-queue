@@ -1,10 +1,10 @@
 import { createWorker } from '../queue';
 import 'websocket-polyfill';
-import { getPublicKey, getEventHash, signEvent } from 'nostr-tools';
+import { getPublicKey, getEventHash, signEvent, nip04 } from 'nostr-tools';
 import { env } from '../env';
 import axios from 'axios';
 import { createRelaysPool, publishNostrEvent } from '../utils/nostr';
-import { NostrToolsEventWithId } from 'nostr-relaypool/event';
+import { NostrToolsEvent, NostrToolsEventWithId } from 'nostr-relaypool/event';
 import { NostrQueue } from '../@types/queues.types';
 
 export const createNostrWorker = (queueName = 'nostr') =>
@@ -13,7 +13,7 @@ export const createNostrWorker = (queueName = 'nostr') =>
     async (job) => {
       const logger = job.log.bind(job);
 
-      const relayPool = createRelaysPool();
+      let relayPool = createRelaysPool();
 
       try {
         if (job.data.type === 'create-story-root-event') {
@@ -36,6 +36,14 @@ export const createNostrWorker = (queueName = 'nostr') =>
           await publishNostrEvent(job.data.event, relayPool, {
             logger,
           });
+        }
+
+        if (job.data.type === 'send-dm') {
+          const { recipient_nostr_pubkey, dm, relay } = job.data.data;
+          if (relay) {
+            relayPool = createRelaysPool([relay]);
+          }
+          await sendDM(dm, recipient_nostr_pubkey);
         }
       } catch (error) {
         console.log(error);
@@ -108,4 +116,47 @@ async function makeCallbackRequest(
       ).toString('base64')}`,
     },
   });
+}
+
+async function sendDM(message: string, recipientPubkey: string) {
+  // const encryptedContent = await encryptMessage(
+  //   msgInput,
+  //   currentOpenContact
+  // );
+
+  const encryptedContent = await encrypteMessage(
+    message,
+    env.BOLTFUN_NOSTR_PRIVATE_KEY,
+    recipientPubkey
+  );
+
+  const myPubkey = getPublicKey(env.BOLTFUN_NOSTR_PRIVATE_KEY);
+
+  const baseEvent = {
+    content: encryptedContent,
+    created_at: Math.round(Date.now() / 1000),
+    kind: 4,
+    tags: [['p', recipientPubkey]],
+    pubkey: myPubkey,
+  } as NostrToolsEvent;
+
+  const sig = await signEvent(baseEvent, env.BOLTFUN_NOSTR_PRIVATE_KEY);
+
+  const id = getEventHash(baseEvent);
+
+  const event = {
+    ...baseEvent,
+    sig,
+    id,
+  } as NostrToolsEventWithId;
+
+  // const pubs = relayPool!.publish(Relays.getRelays(), event);
+}
+
+function encrypteMessage(
+  message: string,
+  ourPrvkey: string,
+  theirPubkey: string
+) {
+  return nip04.encrypt(ourPrvkey, theirPubkey, message);
 }

@@ -9,8 +9,15 @@ export const DEFAULT_RELAYS = [
   'wss://nostr.swiss-enigma.ch',
 ];
 
-export function createRelaysPool() {
-  return new RelayPool(DEFAULT_RELAYS);
+export function createRelaysPool(
+  relaysUrls?: string[],
+  config: { useDefaultRelays?: boolean } = {}
+) {
+  const relays = (relaysUrls ?? []).concat(
+    config.useDefaultRelays ? DEFAULT_RELAYS : []
+  );
+
+  return new RelayPool(relays);
 }
 
 export function publishNostrEvent(
