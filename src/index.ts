@@ -1,17 +1,11 @@
 import { createBullBoard } from '@bull-board/api';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { FastifyAdapter } from '@bull-board/fastify';
-import fastify, { FastifyInstance, FastifyRequest } from 'fastify';
+import fastify, { FastifyInstance } from 'fastify';
 import { Server, IncomingMessage, ServerResponse } from 'http';
 import { env } from './env';
 import addJobRoutes from './routes/add-job-routes.ts';
-import { createQueue } from './queue';
-import { createNotificationsWorker } from './workers/notifications_worker';
-import { validate } from './utils/auth';
 import queuesPlugin from './plugins/queues';
-import { webcrypto } from 'node:crypto';
-
-global.crypto = webcrypto as any;
 
 interface AddJobQueryString {
   id: string;
