@@ -22,7 +22,12 @@ export const createNotificationsWorker = (queueName = 'notifications') =>
           const npub = nip19.npubEncode(pubkey);
           let username: string = npub;
           const userData = await getUserByNostrPubkey(pubkey, relayPool);
-          if (userData) username = userData.name ?? npub;
+          if (userData && 'content' in userData) {
+            try {
+              const content = JSON.parse(userData.content as string);
+              username = content?.name ?? npub;
+            } catch (error) {}
+          }
 
           const notifBody = `New comment on story: ${url}
 **${username}**: _"${
