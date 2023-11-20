@@ -26,6 +26,7 @@ const run = async () => {
         new BullMQAdapter(fastify.queues.notifications),
         new BullMQAdapter(fastify.queues.emails),
         new BullMQAdapter(fastify.queues.search),
+        new BullMQAdapter(fastify.queues.ai),
       ],
       serverAdapter,
     });

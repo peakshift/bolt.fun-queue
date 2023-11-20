@@ -56,6 +56,7 @@
     "meilisearch": "^0.34.1",
     "node-fetch": "^2.6.8",
     "nostr-tools": "^1.14.2",
+    "openai": "^4.19.0",
     "websocket-polyfill": "^0.0.3",
     "ws": "^8.12.1"
   }

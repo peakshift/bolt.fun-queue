@@ -104,6 +104,21 @@ export type SearchQueue = {
   JobNames: 'sync-with-search-db';
 };
 
+export type AIQueue = {
+  Job: {
+    type: 'generate-story-og-summary';
+    data: {
+      story: {
+        id: string;
+        title: string;
+        body: string;
+      };
+      callback_url: string;
+    };
+  };
+  JobNames: AIQueue['Job']['type'];
+};
+
 export type GetQueueJobDataType<
   Queue extends { Job: { type: string }; JobNames: string },
   JobType extends Queue['JobNames'],

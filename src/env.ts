@@ -33,4 +33,6 @@ export const env = envsafe({
 
   MEILISEARCH_HOST: str(),
   MEILISEARCH_API_KEY: str(),
+
+  OPENAI_API_KEY: str(),
 });

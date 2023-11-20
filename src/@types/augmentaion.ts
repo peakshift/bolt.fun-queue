@@ -1,5 +1,6 @@
 import { Queue } from 'bullmq';
 import {
+  AIQueue,
   EmailsQueue,
   NostrQueue,
   NotificationsQueue,
@@ -17,6 +18,7 @@ declare module 'fastify' {
       nostr: Queue<NostrQueue['Job'], any, NostrQueue['JobNames']>;
       emails: Queue<EmailsQueue['Job'], any, EmailsQueue['JobNames']>;
       search: Queue<SearchQueue['Job'], any, SearchQueue['JobNames']>;
+      ai: Queue<AIQueue['Job'], any, AIQueue['JobNames']>;
     };
   }
 }

@@ -6,6 +6,7 @@ import notificationsRoutes from './notifications';
 import nostrRoutes from './nostr';
 import emailsRoutes from './emails';
 import searchRoutes from './search';
+import aiRoutes from './ai';
 
 export default async function storyRoutes(fastify: FastifyInstance) {
   fastify.register(basicAuthPlugin, { validate, authenticate: true });
@@ -20,5 +21,7 @@ export default async function storyRoutes(fastify: FastifyInstance) {
     fastify.register(emailsRoutes, { prefix: '/emails' });
 
     fastify.register(searchRoutes, { prefix: '/search' });
+
+    fastify.register(aiRoutes, { prefix: '/ai' });
   });
 }
