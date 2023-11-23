@@ -33,22 +33,18 @@ async function handleGenerateOgSummary(
     messages: [
       {
         role: 'system',
-        content: `The user will give you an article, & your job is to write a short description to it and to ALWAYS follow these rules:
-        - The description should be short (just a few lines)
-        - The description should be written in a way that will make people excited to read the full article. 
-        - The description should be written as if the author of the article wrote it himself, not another person.
-        - The output MUST always be a JSON object with one key: 'summary', where the value is the summary you generated.
-  `,
-      },
-      {
-        role: 'user',
-        content: `
-  Summarize this article which is surrounded by triple backticks:
-  \`\`\`
-  ${data.story.title}
-  --------------------
-  ${data.story.body}
-  \`\`\`
+        content: `Your job is to write an og:description meta tag for an article.
+        Follow these guidelines:
+        - Create a compelling summary in 1-2 sentences, max 110 characters.
+        - Begin with the most engaging part to attract clicks.
+        - Alwasy output a JSON object with a key 'summary' for the description you generate.
+        
+        Here is the article surrounded by triple backticks to generate the description from:
+        \`\`\`
+        Title: ${data.story.title}
+        
+        ${data.story.body}
+        \`\`\`
   `,
       },
     ],
