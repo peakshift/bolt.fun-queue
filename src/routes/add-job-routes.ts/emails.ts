@@ -92,4 +92,37 @@ export default async function emailsRoutes(fastify: FastifyInstance) {
       reply.send({ status: 'OK' });
     }
   );
+
+  const inviteJudgesToJudgingRoundSchema = Type.Object({
+    judges: Type.Array(
+      Type.Object({
+        id: Type.Number(),
+        name: Type.String(),
+        email: Type.String(),
+      })
+    ),
+    round_url: Type.String(),
+    tournament_id: Type.Number(),
+    tournament_title: Type.String(),
+  });
+
+  fastify.post(
+    '/invite-judges-to-judging-round',
+    {
+      schema: {
+        body: inviteJudgesToJudgingRoundSchema,
+      },
+    },
+    async (request, reply) => {
+      const { judges, round_url, tournament_id, tournament_title } =
+        request.body as Static<typeof inviteJudgesToJudgingRoundSchema>;
+
+      fastify.queues.emails.add(`invite-judges-to-judging-round`, {
+        type: 'invite-judges-to-judging-round',
+        data: { judges, round_url, tournament_id, tournament_title },
+      });
+
+      reply.send({ status: 'OK' });
+    }
+  );
 }

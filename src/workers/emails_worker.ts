@@ -22,6 +22,10 @@ export const createEmailsWorker = (queueName = 'emails') =>
         if (job.data.type === 'send-otp') {
           await handleSendOtp(job.data.data.email, job.data.data.otp);
         }
+
+        if (job.data.type === 'invite-judges-to-judging-round') {
+          await handleInviteJudgesToJudgingRound(job.data.data);
+        }
       } catch (error) {
         console.log(error);
         logger(String(error));
@@ -117,6 +121,46 @@ const handleSendOtp = async (email: string, otp: string) => {
       otp,
     },
   });
+};
+
+const handleInviteJudgesToJudgingRound = async (
+  data: GetQueueJobDataType<
+    EmailsQueue,
+    'invite-judges-to-judging-round'
+  >['data']
+) => {
+  const { judges, round_url, tournament_id, tournament_title } = data;
+
+  if (!judges.length) return;
+
+  const subscribers = await Promise.all(
+    judges.map(async (judge) => {
+      const subscriber = await EmailService.createOrUpdateSubscriber(
+        judge.email,
+        judge.name,
+        { user_id: judge.id }
+      );
+
+      return subscriber;
+    })
+  );
+
+  await Promise.all(
+    subscribers.map(async (subscriber) => {
+      const user_profile_url = `https://bolt.fun/profile/${subscriber.attribs?.user_id}`;
+      const email = subscriber.email;
+
+      await EmailService.sendTransactionalEmail({
+        email,
+        templateId: EMAILS_TEMPLATES.InviteJudgesToJudgingRoundTemplateId,
+        data: {
+          tournament_title,
+          round_url,
+          user_profile_url,
+        },
+      });
+    })
+  );
 };
 
 async function getListIdForTournament(tournamentId: number) {

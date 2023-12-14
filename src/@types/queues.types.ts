@@ -95,6 +95,19 @@ export type EmailsQueue = {
           email: string;
           otp: string;
         };
+      }
+    | {
+        type: 'invite-judges-to-judging-round';
+        data: {
+          judges: {
+            id: number;
+            name: string;
+            email: string;
+          }[];
+          round_url: string;
+          tournament_id: number;
+          tournament_title: string;
+        };
       };
   JobNames: EmailsQueue['Job']['type'];
 };
