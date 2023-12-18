@@ -15,3 +15,7 @@ export const EMAILS_TEMPLATES = {
   OTPTemplateId: 9,
   InviteJudgesToJudgingRoundTemplateId: 10,
 };
+
+export const EMAIL_LISTS = {
+  NewsletterListId: 19,
+};

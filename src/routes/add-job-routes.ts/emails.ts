@@ -125,4 +125,31 @@ export default async function emailsRoutes(fastify: FastifyInstance) {
       reply.send({ status: 'OK' });
     }
   );
+
+  const subscribeToNewsletterSchema = Type.Object({
+    email: Type.String(),
+    user_id: Type.Number(),
+    user_name: Type.String(),
+  });
+
+  fastify.post(
+    '/subscribe-to-newsletter',
+    {
+      schema: {
+        body: subscribeToNewsletterSchema,
+      },
+    },
+    async (request, reply) => {
+      const { email, user_id, user_name } = request.body as Static<
+        typeof subscribeToNewsletterSchema
+      >;
+
+      fastify.queues.emails.add(`subscribe-to-newsletter`, {
+        type: 'subscribe-to-newsletter',
+        data: { email, user_id, user_name },
+      });
+
+      reply.send({ status: 'OK' });
+    }
+  );
 }

@@ -1,5 +1,5 @@
 import { EmailsQueue, GetQueueJobDataType } from '../@types/queues.types';
-import { EMAILS_TEMPLATES } from '../config';
+import { EMAILS_TEMPLATES, EMAIL_LISTS } from '../config';
 import { createWorker } from '../queue';
 import { API } from '../services/api';
 import EmailService from '../services/emails/email.service';
@@ -25,6 +25,10 @@ export const createEmailsWorker = (queueName = 'emails') =>
 
         if (job.data.type === 'invite-judges-to-judging-round') {
           await handleInviteJudgesToJudgingRound(job.data.data);
+        }
+
+        if (job.data.type === 'subscribe-to-newsletter') {
+          await handleSubscribeToNewsletter(job.data.data);
         }
       } catch (error) {
         console.log(error);
@@ -161,6 +165,35 @@ const handleInviteJudgesToJudgingRound = async (
       });
     })
   );
+};
+
+const handleSubscribeToNewsletter = async (
+  data: GetQueueJobDataType<EmailsQueue, 'subscribe-to-newsletter'>['data']
+) => {
+  const { email, user_id, user_name } = data;
+
+  // create a Subscriber object
+  const subscriber = await EmailService.createOrUpdateSubscriber(
+    email,
+    user_name,
+    { user_id }
+  );
+
+  // add this object to the newsletter subscribers list
+  await EmailService.addSubscriberToList(
+    subscriber.id,
+    EMAIL_LISTS.NewsletterListId
+  );
+
+  // TODO: mabe send an email confirming subscription to the user?
+
+  // await EmailService.sendTransactionalEmail({
+  //   subscriberId: subscriber.id,
+  //   templateId: EMAILS_TEMPLATES.NewsletterSubscriptionTemplateId,
+  //   data: {
+  //     user_name,
+  //   },
+  // });
 };
 
 async function getListIdForTournament(tournamentId: number) {

@@ -108,6 +108,14 @@ export type EmailsQueue = {
           tournament_id: number;
           tournament_title: string;
         };
+      }
+    | {
+        type: 'subscribe-to-newsletter';
+        data: {
+          email: string;
+          user_id: number;
+          user_name: string;
+        };
       };
   JobNames: EmailsQueue['Job']['type'];
 };
