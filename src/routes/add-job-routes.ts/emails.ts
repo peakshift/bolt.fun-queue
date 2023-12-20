@@ -128,8 +128,8 @@ export default async function emailsRoutes(fastify: FastifyInstance) {
 
   const subscribeToNewsletterSchema = Type.Object({
     email: Type.String(),
-    user_id: Type.Number(),
-    user_name: Type.String(),
+    user_id: Type.Optional(Type.Number()),
+    user_name: Type.Optional(Type.String()),
   });
 
   fastify.post(
