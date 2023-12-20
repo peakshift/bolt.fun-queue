@@ -113,8 +113,8 @@ export type EmailsQueue = {
         type: 'subscribe-to-newsletter';
         data: {
           email: string;
-          user_id: number;
-          user_name: string;
+          user_id?: number | null;
+          user_name?: string | null;
         };
       };
   JobNames: EmailsQueue['Job']['type'];

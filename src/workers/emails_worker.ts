@@ -173,10 +173,10 @@ const handleSubscribeToNewsletter = async (
   const { email, user_id, user_name } = data;
 
   // create a Subscriber object
-  const subscriber = await EmailService.createOrUpdateSubscriber(
+  const subscriber = await EmailService.createSubscriberIfNotExists(
     email,
-    user_name,
-    { user_id }
+    user_name ?? email,
+    user_id ? { user_id } : undefined
   );
 
   // add this object to the newsletter subscribers list
