@@ -2,6 +2,7 @@ import { Filter, SimplePool } from 'nostr-tools';
 import { NostrEvent } from '../../@types/nostr.types';
 
 export const DEFAULT_RELAYS = [
+  'wss://nostr.bolt.fun',
   'wss://nostr-pub.wellorder.net',
   'wss://nostr-relay.untethr.me',
   'wss://nostr.drss.io',
